@@ -1,0 +1,6 @@
+{
+  "name": "Obrago",
+  "description": "Obrago Android app connecting customers with service workers",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
