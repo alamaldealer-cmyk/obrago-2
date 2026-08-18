@@ -1094,14 +1094,10 @@ private fun PaymentMethodsScreenView(
     )
 
     val methodsList = remember {
-        mutableStateListOf(
-            PaymentMethodItem("1", "VISA", "Visa •••• 4242", "Expires 12/26", "Usama", true),
-            PaymentMethodItem("2", "MC", "Mastercard •••• 8888", "Expires 08/25", "Usama", false),
-            PaymentMethodItem("3", "EP", "Easypaisa •••• 3456", "Active Account", "Usama", false)
-        )
+        mutableStateListOf<PaymentMethodItem>()
     }
 
-    var selectedMethodId by remember { mutableStateOf("1") }
+    var selectedMethodId by remember { mutableStateOf("") }
     var showAddDialog by remember { mutableStateOf(false) }
     var addType by remember { mutableStateOf("Card") } // "Card", "Easypaisa", "JazzCash", "Bank"
 
@@ -1146,25 +1142,44 @@ private fun PaymentMethodsScreenView(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            methodsList.forEach { item ->
-                PaymentCardItem(
-                    brand = item.brand,
-                    number = item.number,
-                    expiry = item.expiry,
-                    holder = item.holder,
-                    isDefault = item.isDefault,
-                    isSelected = selectedMethodId == item.id,
-                    onClick = { selectedMethodId = item.id },
-                    onDelete = {
-                        if (methodsList.size > 1) {
-                            methodsList.remove(item)
-                            Toast.makeText(context, "Payment method removed", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "At least one payment method required", Toast.LENGTH_SHORT).show()
-                        }
+            if (methodsList.isEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, Color(0xFFE5E7EB))
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(Icons.Outlined.CreditCard, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(36.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("No payment methods added yet", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1F2937))
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Add a debit card, Easypaisa, or JazzCash account below.", fontSize = 12.sp, color = Color.Gray, textAlign = TextAlign.Center)
                     }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
+                }
+            } else {
+                methodsList.forEach { item ->
+                    PaymentCardItem(
+                        brand = item.brand,
+                        number = item.number,
+                        expiry = item.expiry,
+                        holder = item.holder,
+                        isDefault = item.isDefault,
+                        isSelected = selectedMethodId == item.id,
+                        onClick = { selectedMethodId = item.id },
+                        onDelete = {
+                            methodsList.remove(item)
+                            if (selectedMethodId == item.id) {
+                                selectedMethodId = methodsList.firstOrNull()?.id ?: ""
+                            }
+                            Toast.makeText(context, "Payment method removed", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
